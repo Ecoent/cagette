@@ -41,6 +41,7 @@
     '@date-io/date-fns': require('@date-io/date-fns'),
     'date-fns': require('date-fns'),
     'date-fns/locale': require('date-fns/locale'),
+    'react-window': require('react-window'),
   });
 
   /*if (process.env.NODE_ENV !== 'production') {

@@ -470,7 +470,20 @@ class App {
 		for ( el in js.Browser.document.querySelectorAll(selector)){
 			untyped el.classList.add("hidden");
 		}
-	}
+    }
+    
+    public function mangopayConfig(id: String) {
+        var containerEl = js.Browser.window.document.getElementById(id);
+		
+		ReactDOM.render(jsx('
+            <MuiThemeProvider theme=${CagetteTheme.get()}>
+                <>
+                    <CssBaseline />
+                    <react.ubo.UBOConfig />
+                </>
+            </MuiThemeProvider>
+		'), containerEl);
+    }
 
 }
 
