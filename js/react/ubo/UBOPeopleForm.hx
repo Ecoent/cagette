@@ -2,11 +2,13 @@ package react.ubo;
 
 import react.ReactMacro.jsx;
 import react.ReactComponent.ReactComponentOfPropsAndState;
+import mui.Color;
 import mui.core.*;
 import mui.core.styles.Styles;
 import mui.core.styles.Classes;
 import mui.core.form.FormControlMargin;
 import mui.core.grid.GridSpacing;
+import mui.core.button.ButtonVariant;
 import react.mui.pickers.MuiPickersUtilsProvider;
 import dateFns.DateFnsLocale;
 import dateFns.FrDateFnsUtils;
@@ -17,8 +19,14 @@ import react.formik.Form;
 import react.formikMUI.TextField;
 import react.formikMUI.DatePicker;
 import react.formikMUI.Select;
+import react.ubo.vo.UBOVO;
 
-typedef UBOPeopleFormProps = {};
+typedef UBOPeopleFormProps = {
+    ?people: UBOVO,
+    onSubmit: () -> Void,
+    onSubmitSuccess: () -> Void,
+    onSubmitFailure: () -> Void,
+};
 
 typedef UBOPeopleFormClasses = Classes<[datePickerInput]>;
 
@@ -94,22 +102,23 @@ class UBOPeopleForm extends ReactComponentOfPropsAndState<UBOPeopleFormPropsWith
             return jsx('<CircularProgress />');
         }
 
+        var people = props.people;
         var initialValues = {
-            FirstName: "",
-            LastName: "",
+            FirstName: people == null ? "" : people.FirstName,
+            LastName: people == null ? "" : people.LastName,
             Address: {
-                AddressLine1: "",
-                AddressLine2: "",
-                City: "",
-                Region: "",
-                PostalCode: "",
-                Country: "FR"
+                AddressLine1: people == null ? "" : people.Address.AddressLine1,
+                AddressLine2: people == null ? "" : (people.Address.AddressLine2 != null ? people.Address.AddressLine2 : ""),
+                City: people == null ? "" : people.Address.City,
+                Region: people == null ? "" : (people.Address.Region != null ? people.Address.Region : ""),
+                PostalCode: people == null ? "" : people.Address.PostalCode,
+                Country: people == null ? "FR" : people.Address.Country,
             },
-            Nationality: "FR",
-            Birthday: Date.now(),
+            Nationality: people == null ? "FR" : people.Nationality,
+            Birthday: people == null ? Date.now() : Date.fromTime(people.Birthday * 1000),
             Birthplace: {
-                City: "",
-                Country: "FR",
+                City: people == null ? "" : people.Birthplace.City,
+                Country: people == null ? "FR" : people.Birthplace.Country,
             }
         };
 
@@ -159,6 +168,16 @@ class UBOPeopleForm extends ReactComponentOfPropsAndState<UBOPeopleFormPropsWith
                                 renderCountryField("Birthplace.Country", "Pays de naissance", "country")
                             )}
                             
+                            <Box pt={4} display="flex" justifyContent="center">
+                                <Button
+                                    disabled={formikProps.isSubmitting}
+                                    variant={ButtonVariant.Contained}
+                                    color={Color.Primary}
+                                    type={mui.core.button.ButtonType.Submit}
+                                    >
+                                    Valider
+                                </Button>
+                            </Box>
                         </Form>
                     )}
                 </Formik>
@@ -230,5 +249,7 @@ class UBOPeopleForm extends ReactComponentOfPropsAndState<UBOPeopleFormPropsWith
      /**
      * 
      */
-     private function onSubmit(values: FormProps, formikBag: Dynamic) {}
+     private function onSubmit(values: FormProps, formikBag: Dynamic) {
+         props.onSubmit();
+     }
 }

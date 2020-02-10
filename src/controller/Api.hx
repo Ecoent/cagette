@@ -69,6 +69,10 @@ class Api extends Controller
 		d.dispatch(new controller.api.Order());
 	}	
 
+	public function doCurrentgroup(d:haxe.web.Dispatch) {
+		d.dispatch(new controller.api.CurrentGroup());
+	}	
+
 	/**
 	 * Get distribution planning for this group
 	 * 
