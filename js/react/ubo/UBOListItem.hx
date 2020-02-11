@@ -9,11 +9,12 @@ import mui.core.button.IconButtonEdge;
 import mui.core.icon.SvgIconFontSize;
 import mui.icon.Edit;
 import mui.icon.Visibility;
-import react.ubo.UBODialogForm;
+import react.ubo.UBOFormDialog;
 
 typedef UBOListItemProps = {
     ubo: UBOVO,
     canEdit: Bool,
+    onRefresh: () -> Void,
 };
 
 typedef UBOListItemState = {
@@ -64,7 +65,7 @@ class UBOListItem extends ReactComponentOfPropsAndState<UBOListItemProps, UBOLis
     private function renderDialog() {
         if (!state.dialogIsOpened) return <></>;
         return 
-            <UBODialogForm open ubo={props.ubo} canEdit={props.canEdit} onClose=$onDialogClose />
+            <UBOFormDialog open ubo={props.ubo} canEdit={props.canEdit} onClose=$onDialogClose />
         ;
     }
 
@@ -73,6 +74,7 @@ class UBOListItem extends ReactComponentOfPropsAndState<UBOListItemProps, UBOLis
     }
 
     private function onDialogClose(refresh: Bool) {
+        if (refresh) props.onRefresh();
         setState({ dialogIsOpened: false });
     }
 }

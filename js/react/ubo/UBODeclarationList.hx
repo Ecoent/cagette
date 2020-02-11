@@ -15,7 +15,8 @@ import dateFns.DateFns;
 import dateFns.DateFnsLocale;
 
 typedef UBODeclarationListProps = {
-    declarations: Array<UBODeclarationVO>
+    declarations: Array<UBODeclarationVO>,
+    onRefresh: () -> Void,
 };
 
 typedef UBODeclarationListPropsClasses = Classes<[alert]>;
@@ -56,6 +57,7 @@ class UBODeclarationList extends ReactComponentOfPropsAndState<UBODeclarationLis
                         declaration={declaration}
                         active={declaration == state.activeDeclaration}
                         onSelect=$onItemSelect
+                        onRefresh=${props.onRefresh}
                         />
                 )}
             </List>

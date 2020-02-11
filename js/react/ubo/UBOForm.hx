@@ -14,6 +14,7 @@ import dateFns.DateFnsLocale;
 import dateFns.FrDateFnsUtils;
 import react.mui.CagetteTheme;
 import react.mui.Box;
+import react.mui.Alert;
 import react.formik.Formik;
 import react.formik.Form;
 import react.formikMUI.TextField;
@@ -128,26 +129,28 @@ class UBOForm extends ReactComponentOfPropsAndState<UBOFormPropsWithClasses, UBO
                 <Formik initialValues=$initialValues onSubmit=$onSubmit>
                     {formikProps -> (
                         <Form>
-                            {renderTwoColumns(
-                                renderTextField("FirstName", "Prénom"),
-                                renderTextField("LastName", "Nom")
-                            )}
-                           
-                            {renderTextField("Address.AddressLine1", "Adresse")}
-                            {renderTextField("Address.AddressLine2", "Adresse 2", false)}
+                            {renderStatus(formikProps.status)}
 
                             {renderTwoColumns(
-                                renderTextField("Address.City", "Ville"),
-                                renderTextField("Address.PostalCode", "Code postal")
+                                renderTextField(formikProps, "FirstName", "Prénom"),
+                                renderTextField(formikProps, "LastName", "Nom")
+                            )}
+                           
+                            {renderTextField(formikProps, "Address.AddressLine1", "Adresse")}
+                            {renderTextField(formikProps, "Address.AddressLine2", "Adresse 2", false)}
+
+                            {renderTwoColumns(
+                                renderTextField(formikProps, "Address.City", "Ville"),
+                                renderTextField(formikProps, "Address.PostalCode", "Code postal")
                             )}
                             
                             {renderTwoColumns(
-                                renderCountryField("Address.Country", "Pays", "country"),
+                                renderCountryField(formikProps, "Address.Country", "Pays", "country"),
                                 renderRegionField(formikProps)
                             )}
                             
                             {renderTwoColumns(
-                                renderCountryField("Nationality", "Nationalité", "nationality"),
+                                renderCountryField(formikProps, "Nationality", "Nationalité", "nationality"),
                                 <FormControl fullWidth margin={FormControlMargin.Dense}>
                                     <DatePicker
                                         InputProps={{
@@ -155,7 +158,7 @@ class UBOForm extends ReactComponentOfPropsAndState<UBOFormPropsWithClasses, UBO
                                                 input: ${props.classes.datePickerInput}
                                             }
                                         }}
-                                        disabled={!props.canEdit}
+                                        disabled={!props.canEdit || formikProps.isSubmitting}
                                         required 
                                         cancelLabel="Annuler"
                                         format="d MMMM yyyy"
@@ -166,8 +169,8 @@ class UBOForm extends ReactComponentOfPropsAndState<UBOFormPropsWithClasses, UBO
                             )}
 
                             {renderTwoColumns(
-                                renderTextField("Birthplace.City", "Ville de naissance"),
-                                renderCountryField("Birthplace.Country", "Pays de naissance", "country")
+                                renderTextField(formikProps, "Birthplace.City", "Ville de naissance"),
+                                renderCountryField(formikProps, "Birthplace.Country", "Pays de naissance", "country")
                             )}
                             
                             {renderButton(formikProps.isSubmitting)}
@@ -185,6 +188,15 @@ class UBOForm extends ReactComponentOfPropsAndState<UBOFormPropsWithClasses, UBO
     /**
      * 
      */
+    private function renderStatus(?status: Dynamic) {
+        if (status == null) return null;
+        return 
+            <Box p={2}>
+                <Alert severity="error">{status}</Alert>
+            </Box>
+        ;
+    }
+
     private function renderTwoColumns(childLeft: Dynamic, ?childRight: Dynamic) {
         var colSize = 12;
         var right = <></>;
@@ -202,7 +214,7 @@ class UBOForm extends ReactComponentOfPropsAndState<UBOFormPropsWithClasses, UBO
         ;
      }
     
-    private function renderTextField(name: String, label: String, required: Bool = true, fullWidth: Bool =true) {
+    private function renderTextField(formikProps: Dynamic, name: String, label: String, required: Bool = true, fullWidth: Bool =true) {
         return  
             <TextField
                 margin={mui.core.form.FormControlMarginNoneDense.Dense}
@@ -210,18 +222,18 @@ class UBOForm extends ReactComponentOfPropsAndState<UBOFormPropsWithClasses, UBO
                 required=$required
                 name=$name
                 label=$label
-                disabled={!props.canEdit}
+                disabled={!props.canEdit || formikProps.isSubmitting}
             />
         ;
     }
 
-    private function renderCountryField(name: String, label: String, labelField: String) {
+    private function renderCountryField(formikProps: Dynamic, name: String, label: String, labelField: String) {
         var id = "ubo-country-" + name;
 
         return
             <FormControl fullWidth margin=${FormControlMargin.Dense}>
                 <InputLabel id=$id>{label}</InputLabel>
-                <Select labelId=$id name=$name fullWidth required disabled={!props.canEdit}>
+                <Select labelId=$id name=$name fullWidth required disabled={!props.canEdit  || formikProps.isSubmitting}>
                     ${state.countrys.map(c -> 
                         <MenuItem key=${c.alpha2} value=${c.alpha2} dense>
                             ${untyped c[labelField]}
@@ -235,7 +247,7 @@ class UBOForm extends ReactComponentOfPropsAndState<UBOFormPropsWithClasses, UBO
     private function renderRegionField(formikProps: Dynamic) {
         var countryCode = formikProps.values.Address.Country;
         if (["US", "CA", "MX"].indexOf(countryCode) != -1) {
-            return renderTextField("Address.Region", "Région");
+            return renderTextField(formikProps, "Address.Region", "Région");
         }
         return <></>;
     }
@@ -260,6 +272,46 @@ class UBOForm extends ReactComponentOfPropsAndState<UBOFormPropsWithClasses, UBO
      * 
      */
      private function onSubmit(values: FormProps, formikBag: Dynamic) {
-         props.onSubmit();
-     }
+        props.onSubmit();
+
+        var data = new js.html.FormData();
+        data.append("FirstName", values.FirstName);
+        data.append("LastName", values.LastName);
+        data.append("Address.AddressLine1", values.Address.AddressLine1);
+        if (values.Address.AddressLine2 != null) data.append("Address.AddressLine2", values.Address.AddressLine2);
+        data.append("Address.City", values.Address.City);
+        data.append("Address.PostalCode", values.Address.PostalCode);
+        data.append("Address.Country", values.Address.Country);
+        if (values.Address.Region != null) data.append("Address.Region", values.Address.Region);
+        data.append("Nationality", values.Nationality);
+        data.append("Birthday", Std.string(values.Birthday.getTime() / 1000));
+        data.append("Birthplace.City", values.Birthplace.City);
+        data.append("Birthplace.Country", values.Birthplace.Country);
+
+
+        var url = '/api/currentgroup/mangopay/kyc/ubodeclarations/74860757/ubos/';
+        if (props.ubo != null) url += Std.string(props.ubo.Id);
+
+        js.Browser.window.fetch(
+            url,
+            {
+                method: props.ubo == null ? "POST" : "PUT",
+                body: data
+            }
+        ).then(res -> {
+            formikBag.setSubmitting(false);
+
+            if (!res.ok) {
+                formikBag.setStatus("Un erreur est survenue");
+                throw res.statusText;
+            }
+
+            return res.json();
+        }).then(res -> {
+            props.onSubmitSuccess();
+        }).catchError(err -> {
+            trace(err);
+            props.onSubmitFailure();
+        });
+    }
 }

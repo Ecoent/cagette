@@ -13,9 +13,6 @@ typedef UBOConfigProps = {};
 typedef UBOConfigState = {
     isLoading: Bool,
     ?declarations: Array<UBODeclarationVO>,
-    // ?data: Dynamic,
-    // ?peoples: Array<UBOVO>,
-    ?editablePeople: UBOVO,
 }; 
 
 class UBOConfig extends ReactComponentOfPropsAndState<UBOConfigProps, UBOConfigState> {
@@ -28,32 +25,14 @@ class UBOConfig extends ReactComponentOfPropsAndState<UBOConfigProps, UBOConfigS
     }
 
     override function componentDidMount() {
-        setState({ isLoading: true });
-
-        js.Browser.window.fetch("/api/currentgroup/mangopay/kyc/ubodeclarations")
-            .then(res -> {
-                if (!res.ok) {
-                    throw res.statusText;
-                }
-                return res.json();
-            }).then(res -> {
-                setState({
-                    isLoading: false,
-                    declarations: UBODeclarationVO.parseArray(res),
-                    // data: res[0],
-                    // peoples: UBOVO.parseArray(res[0].Ubos)
-                });
-                return true;
-            }).catchError(err -> {
-                trace(err);
-            });
+        loadData();
     }
 
     override public function render() {
         var res = 
             <Card>
                 <CardHeader
-                    title="UBO : Déclaration des bénéficiaires effectifs"
+                    title="Déclaration des bénéficiaires effectifs (UBO)"
                     subheader="Liste des actionnaires détenant plus de 25% de la société"
                     />
                 <CardContent>
@@ -83,15 +62,35 @@ class UBOConfig extends ReactComponentOfPropsAndState<UBOConfigProps, UBOConfigS
     private function renderDeclarationList() {
         if (state.isLoading) return <></>;
         if (state.declarations == null) return <div>No declaration</div>;
-        return <UBODeclarationList declarations=${state.declarations} />
+        return <UBODeclarationList declarations=${state.declarations} onRefresh=$refresh />
         ;
     }
 
-    private function editPeople(people: UBOVO) {
-        setState({ editablePeople: people });
+    private function refresh() {
+        var timer = new haxe.Timer(100);
+        timer.run = function() {
+            loadData();
+            timer.stop();
+        };
     }
 
-    private function onCloseDialog(refresh: Bool) {
-        setState({ editablePeople: null });
+    private function loadData() {
+        setState({ isLoading: true, declarations: [] });
+
+        js.Browser.window.fetch("/api/currentgroup/mangopay/kyc/ubodeclarations")
+            .then(res -> {
+                if (!res.ok) {
+                    throw res.statusText;
+                }
+                return res.json();
+            }).then(res -> {
+                setState({
+                    isLoading: false,
+                    declarations: UBODeclarationVO.parseArray(res),
+                });
+                return true;
+            }).catchError(err -> {
+                trace(err);
+            });
     }
 }

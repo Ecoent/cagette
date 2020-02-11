@@ -23,6 +23,7 @@ typedef UBODeclarationListItemProps = {
     declaration: UBODeclarationVO,
     active: Bool,
     onSelect: (?declaration: UBODeclarationVO) -> Void,
+    onRefresh: () -> Void,
 };
 
 typedef UBODeclarationListItemPropsClasses = Classes<[alert, alertMessage]>;
@@ -62,20 +63,30 @@ class UBODeclarationListItem extends ReactComponentOfProps<UBODeclarationListIte
         var listItem = switch (declaration.Status) {
             case CREATED: 
                 <ListItem>
-                    <Alert className=${props.classes.alert} severity="info">
-                        aa
+                    <Alert
+                        classes={{ message: props.classes.alertMessage }} 
+                        className=${props.classes.alert}
+                        severity="info">
+                        <AlertTitle>Complétez la déclaration.</AlertTitle>
+                        {renderUboList(true, true, declaration.Ubos.length < 4)}
                     </Alert>
                 </ListItem>
                 ;
             case VALIDATION_ASKED: 
                 <ListItem>
-                    <Alert className=${props.classes.alert} severity="info">
+                    <Alert
+                        classes={{ message: props.classes.alertMessage }} 
+                        className=${props.classes.alert}
+                        severity="info">
                         <AlertTitle>Déclaration du {dateStr} en attente de validation.</AlertTitle>
                     </Alert>
                 </ListItem>;
             case INCOMPLETE:
                 <ListItem>
-                    <Alert className=${props.classes.alert} severity="info">
+                    <Alert
+                        classes={{ message: props.classes.alertMessage }}    
+                        className=${props.classes.alert}
+                        severity="info">
                         <AlertTitle>Déclaration du {dateStr} incomplète.</AlertTitle>
                         {declaration.Message}<br />
                         Vous pouvez l&rsquo;éditer ci-dessous.
@@ -83,17 +94,19 @@ class UBODeclarationListItem extends ReactComponentOfProps<UBODeclarationListIte
                 </ListItem>;
             case VALIDATED:
                 <ListItem>
-                    <Alert className=${props.classes.alert} severity="success">
+                    <Alert
+                        classes={{ message: props.classes.alertMessage }}
+                        className=${props.classes.alert}
+                        severity="success">
                         <AlertTitle>Déclaration du {dateStr} acceptée.</AlertTitle>
                     </Alert>
                 </ListItem>;
             case REFUSED: 
                 <ListItem>
-                    <Alert
+                    <Alert 
                         className=${props.classes.alert}
                         classes={{ message: props.classes.alertMessage }}
-                        severity="error"
-                    >
+                        severity="error">
                         <AlertTitle>
                             <Box display="flex" justifyContent="space-between">
                                 <Typography>Déclaration du {dateStr} refusée.</Typography>
@@ -101,7 +114,7 @@ class UBODeclarationListItem extends ReactComponentOfProps<UBODeclarationListIte
                             </Box>
                         </AlertTitle>
                         {parseReason(declaration.Reason)} {declaration.Message}
-                        {renderUboList(false)}
+                        {renderUboList(props.active, false, false)}
                     </Alert>
                 </ListItem>
             ;
@@ -145,11 +158,14 @@ class UBODeclarationListItem extends ReactComponentOfProps<UBODeclarationListIte
         ;
     }
 
-    private function renderUboList(canEdit: Bool) {
-        if (props.active) {
-            return <Box mt={2} mx={2}><UBOList ubos={props.declaration.Ubos} canEdit={canEdit} /></Box>;
+    private function renderUboList(show: Bool, canEdit: Bool, canAdd: Bool) {
+        if (show) {
+            return 
+                <Box mt={2} mx={2}>
+                    <UBOList ubos={props.declaration.Ubos} canEdit={canEdit} canAdd={canAdd} onRefresh=${props.onRefresh} />
+                </Box>
+            ;
         }
-
         return <></>;
     }
 }
