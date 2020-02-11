@@ -9,7 +9,7 @@ import react.mui.Box;
 import react.ubo.UBOForm;
 import react.ubo.vo.UboVO;
 
-typedef UBOFormDialogProps = {
+private typedef Props = {
     declarationId: Int,
     open: Bool,
     canEdit: Bool,
@@ -17,13 +17,13 @@ typedef UBOFormDialogProps = {
     onClose: (refresh: Bool) -> Void,
 };
 
-typedef UBOFormDialogState = {
+private typedef State = {
     isSubmiting: Bool,
 }
 
-class UBOFormDialog extends ReactComponentOfPropsAndState<UBOFormDialogProps, UBOFormDialogState> {
+class UBOFormDialog extends ReactComponentOfPropsAndState<Props, State> {
 
-    public function new(props: UBOFormDialogProps) {
+    public function new(props: Props) {
         super(props);
 
         state = {

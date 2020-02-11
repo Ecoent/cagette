@@ -11,20 +11,20 @@ import mui.icon.Edit;
 import mui.icon.Visibility;
 import react.ubo.UBOFormDialog;
 
-typedef UBOListItemProps = {
+private typedef Props = {
     declarationId: Int,
     ubo: UboVO,
     canEdit: Bool,
     onRefresh: () -> Void,
 };
 
-typedef UBOListItemState = {
+private typedef State = {
     dialogIsOpened: Bool,
 };
 
-class UBOListItem extends ReactComponentOfPropsAndState<UBOListItemProps, UBOListItemState> {
+class UBOListItem extends ReactComponentOfPropsAndState<Props, State> {
 
-    public function new(props: UBOListItemProps) {
+    public function new(props: Props) {
         super(props);
 
         state = { dialogIsOpened: false };

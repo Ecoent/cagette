@@ -16,7 +16,7 @@ import mui.core.button.ButtonVariant;
 import mui.core.button.ButtonSize;
 import react.ubo.Provider;
 
-typedef UBOListProps = {
+private typedef Props = {
     declarationId: Int,
     ubos: Array<UboVO>,
     canEdit: Bool,
@@ -24,21 +24,21 @@ typedef UBOListProps = {
     onRefresh: () -> Void,
 };
 
-private typedef UBOListWrappedProps = {
-    >UBOListProps,
+private private typedef PrivateProps = {
+    >Props,
     message: String
 };
 
-typedef UBOListState = {
+private typedef State = {
     dialogIsOpened: Bool
 };
 
 
-@:publicProps(UBOListProps)
+@:publicProps(Props)
 @:wrap(Provider.withUBOContext)
-class UBOList extends ReactComponentOfPropsAndState<UBOListWrappedProps, UBOListState> {
+class UBOList extends ReactComponentOfPropsAndState<PrivateProps, State> {
 
-    public function new(props: UBOListWrappedProps) {
+    public function new(props: PrivateProps) {
         super(props);
         
         state = {

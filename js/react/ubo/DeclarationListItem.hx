@@ -22,7 +22,7 @@ import mui.core.button.ButtonVariant;
 import mui.TextColor;
 import mui.core.button.ButtonSize;
 
-typedef DeclarationListItemProps = {
+private typedef Props = {
     declaration: DeclarationVO,
     active: Bool,
     displayAction: Bool,
@@ -30,24 +30,24 @@ typedef DeclarationListItemProps = {
     onRefresh: () -> Void,
 };
 
-typedef DeclarationListItemPropsClasses = Classes<[alert, alertMessage]>;
+private typedef ClassessProps = Classes<[alert, alertMessage]>;
 
-typedef DeclarationListItemPropsWithClasses = {
-    >DeclarationListItemProps,
-    classes: DeclarationListItemPropsClasses,
+private typedef PrivateProps = {
+    >Props,
+    classes: ClassessProps,
 };
 
-typedef DeclarationListItemState = {
+private typedef State = {
     confirmDialogIsOpened: Bool,
     isLoading: Bool,
     ?error: String,
 };
 
-@:publicDeclarationListItemProps(DeclarationListItemProps)
+@:publicProps(Props)
 @:wrap(Styles.withStyles(styles))
-class DeclarationListItem extends ReactComponentOfPropsAndState<DeclarationListItemPropsWithClasses, DeclarationListItemState> {
+class DeclarationListItem extends ReactComponentOfPropsAndState<PrivateProps, State> {
 
-    public static function styles(theme:Theme):ClassesDef<DeclarationListItemPropsClasses> {
+    public static function styles(theme:Theme):ClassesDef<ClassessProps> {
         return {
             alert: {
                 flex: "1"
@@ -58,7 +58,7 @@ class DeclarationListItem extends ReactComponentOfPropsAndState<DeclarationListI
         }
     }
 
-    public function new(props: DeclarationListItemPropsWithClasses) {
+    public function new(props: PrivateProps) {
         super(props);
 
         state = {

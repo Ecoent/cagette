@@ -12,24 +12,24 @@ import mui.icon.ExpandMore;
 import react.ubo.Provider;
 import react.ubo.DeclarationsHistory;
 
-typedef UBOConfigProps = {};
+private typedef Props = {};
 
-typedef UBOConfigWrappedProps = {
-    >UBOConfigProps,
+private typedef PrivatePropx = {
+    >Props,
     declarationIsLoading: Bool,
     declarations: Array<DeclarationVO>,
     loadDeclaration: () -> Void,
 };
 
-typedef UBOConfigState = {
+private typedef State = {
     showHistory: Bool,
 }; 
 
-@:publicProps(UBOConfigProps)
+@:publicProps(Props)
 @:wrap(Provider.withUBOContext)
-class UBOConfig extends ReactComponentOfPropsAndState<UBOConfigWrappedProps, UBOConfigState> {
+class UBOConfig extends ReactComponentOfPropsAndState<PrivatePropx, State> {
 
-    public function new(props: UBOConfigWrappedProps) {
+    public function new(props: PrivatePropx) {
         super(props);
         state = {
             showHistory: false,

@@ -14,28 +14,28 @@ import dateFns.DateFns;
 import dateFns.DateFns;
 import dateFns.DateFnsLocale;
 
-typedef DeclarationListProps = {
+private typedef Props = {
     declarations: Array<DeclarationVO>,
     displayAction: Bool,
     onRefresh: () -> Void,
 };
 
-typedef DeclarationListPropsClasses = Classes<[alert]>;
+private typedef ClassesProps = Classes<[alert]>;
 
-typedef DeclarationListPropsWithClasses = {
-    >DeclarationListProps,
-    classes: DeclarationListPropsClasses,
+private typedef PrivateProps = {
+    >Props,
+    classes: ClassesProps,
 };
 
 typedef DeclarationListStateState = {
     ?activeDeclaration: DeclarationVO
 };
 
-@:publicProps(DeclarationListProps)
+@:publicProps(Props)
 @:wrap(Styles.withStyles(styles))
-class DeclarationList extends ReactComponentOfPropsAndState<DeclarationListPropsWithClasses, DeclarationListStateState> {
+class DeclarationList extends ReactComponentOfPropsAndState<PrivateProps, DeclarationListStateState> {
 
-    public static function styles(theme:Theme):ClassesDef<DeclarationListPropsClasses> {
+    public static function styles(theme:Theme):ClassesDef<ClassesProps> {
         return {
             alert: {
                 flex: "1"
@@ -43,7 +43,7 @@ class DeclarationList extends ReactComponentOfPropsAndState<DeclarationListProps
         }
     }
 
-    public function new(props: DeclarationListPropsWithClasses) {
+    public function new(props: PrivateProps) {
         super(props);
 
         state = {};
