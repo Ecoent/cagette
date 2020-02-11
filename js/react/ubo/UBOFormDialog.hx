@@ -7,13 +7,13 @@ import mui.core.typography.TypographyVariant;
 import mui.icon.Close;
 import react.mui.Box;
 import react.ubo.UBOForm;
-import react.ubo.vo.UBOVO;
+import react.ubo.vo.UboVO;
 
 typedef UBOFormDialogProps = {
     declarationId: Int,
     open: Bool,
     canEdit: Bool,
-    ?ubo: UBOVO,
+    ?ubo: UboVO,
     onClose: (refresh: Bool) -> Void,
 };
 

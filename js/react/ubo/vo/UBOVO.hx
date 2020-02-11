@@ -1,6 +1,6 @@
 package react.ubo.vo;
 
-typedef UBOVOAddress = {
+typedef UboVOAddress = {
     AddressLine1: String,
     ?AddressLine2: String,
     City: String,
@@ -9,28 +9,28 @@ typedef UBOVOAddress = {
     ?Region: String,
 };
 
-typedef UBOVOBirthplace = {
+typedef UboVOBirthplace = {
     City: String,
     Country: String,
 };
 
-class UBOVO {
+class UboVO {
     public var Id: Int;
     public var FirstName: String;
     public var LastName: String;
-    public var Address: UBOVOAddress;
+    public var Address: UboVOAddress;
     public var Nationality: String;
     public var Birthday: Int;
-    public var Birthplace: UBOVOBirthplace;
+    public var Birthplace: UboVOBirthplace;
 
     public function new(
         Id: Int,
         FirstName: String,
         LastName: String,
-        Address: UBOVOAddress,
+        Address: UboVOAddress,
         Nationality: String,
         Birthday: Int,
-        Birthplace: UBOVOBirthplace
+        Birthplace: UboVOBirthplace
     ) {
         this.Id = Id;
         this.FirstName = FirstName;
@@ -41,8 +41,8 @@ class UBOVO {
         this.Birthplace = Birthplace;
     }
 
-    static public function parse(data: Dynamic): UBOVO {
-        return new UBOVO(
+    static public function parse(data: Dynamic): UboVO {
+        return new UboVO(
             data.Id,
             data.FirstName,
             data.LastName,
@@ -63,7 +63,7 @@ class UBOVO {
         );
     }
 
-    static public function parseArray(data: Dynamic): Array<UBOVO> {
+    static public function parseArray(data: Dynamic): Array<UboVO> {
         return data.map(d -> parse(d));
     }
 }

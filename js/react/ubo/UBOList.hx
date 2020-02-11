@@ -3,7 +3,7 @@ package react.ubo;
 import react.ReactMacro.jsx;
 import react.ReactComponent;
 import mui.core.*;
-import react.ubo.vo.UBOVO;
+import react.ubo.vo.UboVO;
 import mui.core.button.IconButtonSize;
 import mui.core.button.IconButtonEdge;
 import mui.core.icon.SvgIconFontSize;
@@ -14,24 +14,33 @@ import react.ubo.UBOListItem;
 import react.mui.Box;
 import mui.core.button.ButtonVariant;
 import mui.core.button.ButtonSize;
+import react.ubo.Provider;
 
 typedef UBOListProps = {
     declarationId: Int,
-    ubos: Array<UBOVO>,
+    ubos: Array<UboVO>,
     canEdit: Bool,
     canAdd: Bool,
     onRefresh: () -> Void,
+};
+
+private typedef UBOListWrappedProps = {
+    >UBOListProps,
+    message: String
 };
 
 typedef UBOListState = {
     dialogIsOpened: Bool
 };
 
-class UBOList extends ReactComponentOfPropsAndState<UBOListProps, UBOListState> {
 
-    public function new(props: UBOListProps) {
+@:publicProps(UBOListProps)
+@:wrap(Provider.withUBOContext)
+class UBOList extends ReactComponentOfPropsAndState<UBOListWrappedProps, UBOListState> {
+
+    public function new(props: UBOListWrappedProps) {
         super(props);
-
+        
         state = {
             dialogIsOpened: false
         };

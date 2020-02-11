@@ -3,7 +3,7 @@ package react.ubo;
 import react.ReactMacro.jsx;
 import react.ReactComponent;
 import mui.core.*;
-import react.ubo.vo.UBOVO;
+import react.ubo.vo.UboVO;
 import mui.core.button.IconButtonSize;
 import mui.core.button.IconButtonEdge;
 import mui.core.icon.SvgIconFontSize;
@@ -13,7 +13,7 @@ import react.ubo.UBOFormDialog;
 
 typedef UBOListItemProps = {
     declarationId: Int,
-    ubo: UBOVO,
+    ubo: UboVO,
     canEdit: Bool,
     onRefresh: () -> Void,
 };

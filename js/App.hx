@@ -30,6 +30,8 @@ import react.vendor.*;
 //TODO
 import react.store.Cart;
 
+import react.ubo.UboManager;
+
 
 //require bootstrap JS since it's bundled with browserify
 //@:jsRequire('bootstrap') extern class Bootstrap{}
@@ -479,7 +481,7 @@ class App {
             <MuiThemeProvider theme=${CagetteTheme.get()}>
                 <>
                     <CssBaseline />
-                    <react.ubo.UBOConfig />
+                    <UboManager />
                 </>
             </MuiThemeProvider>
 		'), containerEl);

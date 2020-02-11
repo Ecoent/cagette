@@ -9,7 +9,7 @@ import mui.core.button.IconButtonEdge;
 import mui.core.button.IconButtonSize;
 import mui.icon.ExpandLess;
 import mui.icon.ExpandMore;
-import react.ubo.vo.UBODeclarationVO;
+import react.ubo.vo.DeclarationVO;
 import react.mui.CagetteTheme;
 import react.mui.Alert;
 import react.mui.AlertTitle;
@@ -22,32 +22,32 @@ import mui.core.button.ButtonVariant;
 import mui.TextColor;
 import mui.core.button.ButtonSize;
 
-typedef UBODeclarationListItemProps = {
-    declaration: UBODeclarationVO,
+typedef DeclarationListItemProps = {
+    declaration: DeclarationVO,
     active: Bool,
     displayAction: Bool,
-    onSelect: (?declaration: UBODeclarationVO) -> Void,
+    onSelect: (?declaration: DeclarationVO) -> Void,
     onRefresh: () -> Void,
 };
 
-typedef UBODeclarationListItemPropsClasses = Classes<[alert, alertMessage]>;
+typedef DeclarationListItemPropsClasses = Classes<[alert, alertMessage]>;
 
-typedef UBODeclarationListItemPropsWithClasses = {
-    >UBODeclarationListItemProps,
-    classes: UBODeclarationListItemPropsClasses,
+typedef DeclarationListItemPropsWithClasses = {
+    >DeclarationListItemProps,
+    classes: DeclarationListItemPropsClasses,
 };
 
-typedef UBODeclarationListItemState = {
+typedef DeclarationListItemState = {
     confirmDialogIsOpened: Bool,
     isLoading: Bool,
     ?error: String,
 };
 
-@:publicUBODeclarationListItemProps(UBODeclarationListItemProps)
+@:publicDeclarationListItemProps(DeclarationListItemProps)
 @:wrap(Styles.withStyles(styles))
-class UBODeclarationListItem extends ReactComponentOfPropsAndState<UBODeclarationListItemPropsWithClasses, UBODeclarationListItemState> {
+class DeclarationListItem extends ReactComponentOfPropsAndState<DeclarationListItemPropsWithClasses, DeclarationListItemState> {
 
-    public static function styles(theme:Theme):ClassesDef<UBODeclarationListItemPropsClasses> {
+    public static function styles(theme:Theme):ClassesDef<DeclarationListItemPropsClasses> {
         return {
             alert: {
                 flex: "1"
@@ -58,7 +58,7 @@ class UBODeclarationListItem extends ReactComponentOfPropsAndState<UBODeclaratio
         }
     }
 
-    public function new(props: UBODeclarationListItemPropsWithClasses) {
+    public function new(props: DeclarationListItemPropsWithClasses) {
         super(props);
 
         state = {
@@ -157,7 +157,7 @@ class UBODeclarationListItem extends ReactComponentOfPropsAndState<UBODeclaratio
         );
     }
 
-    private function parseReason(reason: UBODeclarationVOReason) {
+    private function parseReason(reason: DeclarationVOReason) {
         return switch (reason) {
             case MISSING_UBO: "Ubo manquant.";
             case WRONG_UBO_INFORMATION: "Une information concernant bénéficiaire effectif est erronée.";

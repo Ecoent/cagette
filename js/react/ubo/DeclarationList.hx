@@ -6,7 +6,7 @@ import mui.core.styles.Styles;
 import mui.core.styles.Classes;
 import mui.core.*;
 import mui.icon.Close;
-import react.ubo.vo.UBODeclarationVO;
+import react.ubo.vo.DeclarationVO;
 import react.mui.CagetteTheme;
 import react.mui.Alert;
 import react.mui.AlertTitle;
@@ -14,28 +14,28 @@ import dateFns.DateFns;
 import dateFns.DateFns;
 import dateFns.DateFnsLocale;
 
-typedef UBODeclarationListProps = {
-    declarations: Array<UBODeclarationVO>,
+typedef DeclarationListProps = {
+    declarations: Array<DeclarationVO>,
     displayAction: Bool,
     onRefresh: () -> Void,
 };
 
-typedef UBODeclarationListPropsClasses = Classes<[alert]>;
+typedef DeclarationListPropsClasses = Classes<[alert]>;
 
-typedef UBODeclarationListPropsWithClasses = {
-    >UBODeclarationListProps,
-    classes: UBODeclarationListPropsClasses,
+typedef DeclarationListPropsWithClasses = {
+    >DeclarationListProps,
+    classes: DeclarationListPropsClasses,
 };
 
-typedef UBODeclarationListStateState = {
-    ?activeDeclaration: UBODeclarationVO
+typedef DeclarationListStateState = {
+    ?activeDeclaration: DeclarationVO
 };
 
-@:publicUBODeclarationListProps(UBODeclarationListProps)
+@:publicProps(DeclarationListProps)
 @:wrap(Styles.withStyles(styles))
-class UBODeclarationList extends ReactComponentOfPropsAndState<UBODeclarationListPropsWithClasses, UBODeclarationListStateState> {
+class DeclarationList extends ReactComponentOfPropsAndState<DeclarationListPropsWithClasses, DeclarationListStateState> {
 
-    public static function styles(theme:Theme):ClassesDef<UBODeclarationListPropsClasses> {
+    public static function styles(theme:Theme):ClassesDef<DeclarationListPropsClasses> {
         return {
             alert: {
                 flex: "1"
@@ -43,7 +43,7 @@ class UBODeclarationList extends ReactComponentOfPropsAndState<UBODeclarationLis
         }
     }
 
-    public function new(props: UBODeclarationListPropsWithClasses) {
+    public function new(props: DeclarationListPropsWithClasses) {
         super(props);
 
         state = {};
@@ -53,7 +53,7 @@ class UBODeclarationList extends ReactComponentOfPropsAndState<UBODeclarationLis
         var res = 
             <List dense>
                 {props.declarations.map(declaration -> 
-                    <UBODeclarationListItem
+                    <DeclarationListItem
                         key={declaration.Id}
                         declaration={declaration}
                         displayAction=${props.displayAction}
@@ -68,7 +68,7 @@ class UBODeclarationList extends ReactComponentOfPropsAndState<UBODeclarationLis
         return jsx('$res');
     }
 
-    private function onItemSelect(?declaration: UBODeclarationVO) {
+    private function onItemSelect(?declaration: DeclarationVO) {
         setState({ activeDeclaration: declaration });
     }
 }

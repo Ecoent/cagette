@@ -20,30 +20,32 @@ import react.formik.Form;
 import react.formikMUI.TextField;
 import react.formikMUI.DatePicker;
 import react.formikMUI.Select;
-import react.ubo.vo.UBOVO;
+import react.ubo.vo.UboVO;
+import react.ubo.Utils;
+import react.ubo.Api;
 
-typedef UBOFormProps = {
+private typedef Props = {
     declarationId: Int,
-    ?ubo: UBOVO,
+    ?ubo: UboVO,
     canEdit: Bool,
     onSubmit: () -> Void,
     onSubmitSuccess: () -> Void,
     onSubmitFailure: () -> Void,
 };
 
-typedef UBOFormClasses = Classes<[datePickerInput]>;
+private typedef ClassesProps = Classes<[datePickerInput]>;
 
-typedef UBOFormPropsWithClasses = {
-    >UBOFormProps,
-    classes:UBOFormClasses,
+private typedef PrivateProps = {
+    >Props,
+    classes:ClassesProps,
 };
 
-typedef UBOFormState = {
+private typedef State = {
     isLoading: Bool,
     countrys: Array<{alpha2: String, nationality: String, country: String}>
 };
 
-typedef FormProps = {
+private typedef FormProps = {
     FirstName: String,
     LastName: String,
     Address: {
@@ -62,11 +64,11 @@ typedef FormProps = {
     }
 };
 
-@:publicProps(UBOFormProps)
+@:publicProps(Props)
 @:wrap(Styles.withStyles(styles))
-class UBOForm extends ReactComponentOfPropsAndState<UBOFormPropsWithClasses, UBOFormState> {
+class UBOForm extends ReactComponentOfPropsAndState<PrivateProps, State> {
 
-    public function new(props: UBOFormPropsWithClasses) {
+    public function new(props: PrivateProps) {
         super(props);
 
         state = {
@@ -75,7 +77,7 @@ class UBOForm extends ReactComponentOfPropsAndState<UBOFormPropsWithClasses, UBO
         };
     }
 
-    public static function styles(theme:Theme):ClassesDef<UBOFormClasses> {
+    public static function styles(theme:Theme):ClassesDef<ClassesProps> {
         return {
             datePickerInput: {
                 textTransform: css.TextTransform.Capitalize
@@ -86,13 +88,9 @@ class UBOForm extends ReactComponentOfPropsAndState<UBOFormPropsWithClasses, UBO
     override function componentDidMount() {
         setState({ isLoading: true });
 
-        js.Browser.window.fetch("/data/iso-3166-french.json")
+        // TODO: Move to context
+        Api.fetchOnceISO3166French()
             .then(res -> {
-                if (!res.ok) {
-                    throw res.statusText;
-                }
-                return res.json();
-            }).then(res -> {
                 setState({ isLoading: false, countrys: cast res });
                 return true;
             }).catchError(err -> {
@@ -275,20 +273,7 @@ class UBOForm extends ReactComponentOfPropsAndState<UBOFormPropsWithClasses, UBO
      private function onSubmit(values: FormProps, formikBag: Dynamic) {
         props.onSubmit();
 
-        var data = new js.html.FormData();
-        data.append("FirstName", values.FirstName);
-        data.append("LastName", values.LastName);
-        data.append("Address.AddressLine1", values.Address.AddressLine1);
-        if (values.Address.AddressLine2 != null) data.append("Address.AddressLine2", values.Address.AddressLine2);
-        data.append("Address.City", values.Address.City);
-        data.append("Address.PostalCode", values.Address.PostalCode);
-        data.append("Address.Country", values.Address.Country);
-        if (values.Address.Region != null) data.append("Address.Region", values.Address.Region);
-        data.append("Nationality", values.Nationality);
-        data.append("Birthday", Std.string(values.Birthday.getTime() / 1000));
-        data.append("Birthplace.City", values.Birthplace.City);
-        data.append("Birthplace.Country", values.Birthplace.Country);
-
+        var data = Utils.addUboFormValuesToFormData(values);
 
         var url = '/api/currentgroup/mangopay/kyc/ubodeclarations/${props.declarationId}/ubos/';
         if (props.ubo != null) url += Std.string(props.ubo.Id);
