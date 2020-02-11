@@ -10,6 +10,7 @@ import react.ubo.UBOForm;
 import react.ubo.vo.UBOVO;
 
 typedef UBOFormDialogProps = {
+    declarationId: Int,
     open: Bool,
     canEdit: Bool,
     ?ubo: UBOVO,
@@ -36,6 +37,7 @@ class UBOFormDialog extends ReactComponentOfPropsAndState<UBOFormDialogProps, UB
                 {renderDialogTitle()}
                 <DialogContent>
                     <UBOForm
+                        declarationId={props.declarationId}
                         ubo={props.ubo}
                         canEdit={props.canEdit}
                         onSubmit={onSubmit}

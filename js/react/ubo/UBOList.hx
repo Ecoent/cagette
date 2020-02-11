@@ -16,6 +16,7 @@ import mui.core.button.ButtonVariant;
 import mui.core.button.ButtonSize;
 
 typedef UBOListProps = {
+    declarationId: Int,
     ubos: Array<UBOVO>,
     canEdit: Bool,
     canAdd: Bool,
@@ -40,7 +41,7 @@ class UBOList extends ReactComponentOfPropsAndState<UBOListProps, UBOListState> 
         var res =
             <>
                 <List dense disablePadding>
-                    {props.ubos.map(ubo -> <UBOListItem key={ubo.Id} ubo={ubo} canEdit={props.canEdit} onRefresh=${props.onRefresh} />)}
+                    {props.ubos.map(ubo -> <UBOListItem key={ubo.Id} ubo={ubo} canEdit={props.canEdit} onRefresh=${props.onRefresh} declarationId={props.declarationId} />)}
                 </List>
                 {renderAddButton()}
                 {renderDialog()}
@@ -68,7 +69,7 @@ class UBOList extends ReactComponentOfPropsAndState<UBOListProps, UBOListState> 
     private function renderDialog() {
         if (!state.dialogIsOpened) return <></>;
         return 
-            <UBOFormDialog open canEdit onClose=$onDialogClose />
+            <UBOFormDialog open canEdit onClose=$onDialogClose declarationId={props.declarationId} />
         ;
     }
 

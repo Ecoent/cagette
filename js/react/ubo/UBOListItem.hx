@@ -12,6 +12,7 @@ import mui.icon.Visibility;
 import react.ubo.UBOFormDialog;
 
 typedef UBOListItemProps = {
+    declarationId: Int,
     ubo: UBOVO,
     canEdit: Bool,
     onRefresh: () -> Void,
@@ -65,7 +66,7 @@ class UBOListItem extends ReactComponentOfPropsAndState<UBOListItemProps, UBOLis
     private function renderDialog() {
         if (!state.dialogIsOpened) return <></>;
         return 
-            <UBOFormDialog open ubo={props.ubo} canEdit={props.canEdit} onClose=$onDialogClose />
+            <UBOFormDialog open ubo={props.ubo} canEdit={props.canEdit} onClose=$onDialogClose declarationId={props.declarationId} />
         ;
     }
 

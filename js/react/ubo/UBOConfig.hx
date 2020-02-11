@@ -7,11 +7,14 @@ import react.ubo.vo.UBODeclarationVO;
 import react.ubo.vo.UBOVO;
 import react.ubo.UBODeclarationList;
 import react.mui.Box;
+import mui.icon.ExpandLess;
+import mui.icon.ExpandMore;
 
 typedef UBOConfigProps = {};
 
 typedef UBOConfigState = {
     isLoading: Bool,
+    showHistory: Bool,
     ?declarations: Array<UBODeclarationVO>,
 }; 
 
@@ -20,7 +23,8 @@ class UBOConfig extends ReactComponentOfPropsAndState<UBOConfigProps, UBOConfigS
     public function new(props: UBOConfigProps) {
         super(props);
         state = {
-            isLoading: true
+            isLoading: true,
+            showHistory: false,
         };
     }
 
@@ -61,8 +65,33 @@ class UBOConfig extends ReactComponentOfPropsAndState<UBOConfigProps, UBOConfigS
     
     private function renderDeclarationList() {
         if (state.isLoading) return <></>;
-        if (state.declarations == null) return <div>No declaration</div>;
-        return <UBODeclarationList declarations=${state.declarations} onRefresh=$refresh />
+        if (state.declarations == null || state.declarations.length == 0) return <div>No declaration</div>;
+        var ds = state.declarations.map(d -> d);
+        ds.sort((a, b) ->  a.CreationDate - b.CreationDate);
+        var current = ds.pop();
+        return
+            <>
+                <UBODeclarationList declarations=${[current]} displayAction onRefresh=$refresh />
+                {renderHistory(ds)}
+            </>
+        ;
+    }
+
+    private function renderHistory(declarations: Array<UBODeclarationVO>) {
+        if (declarations.length == 0) return <></>;
+
+        var icon = state.showHistory ? <ExpandLess /> : <ExpandMore />;
+        var toggleHistory = () -> setState({ showHistory: !state.showHistory });
+        return 
+            <>
+                <Box m={2} mt={0} display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography>Historique des déclarations</Typography>
+                    <IconButton onClick={toggleHistory}>{icon}</IconButton>
+                </Box>
+                <Collapse in={state.showHistory}>
+                    <UBODeclarationList declarations=${declarations} displayAction={false} onRefresh=$refresh />
+                </Collapse>
+            </>
         ;
     }
 

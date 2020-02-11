@@ -23,6 +23,7 @@ import react.formikMUI.Select;
 import react.ubo.vo.UBOVO;
 
 typedef UBOFormProps = {
+    declarationId: Int,
     ?ubo: UBOVO,
     canEdit: Bool,
     onSubmit: () -> Void,
@@ -289,7 +290,7 @@ class UBOForm extends ReactComponentOfPropsAndState<UBOFormPropsWithClasses, UBO
         data.append("Birthplace.Country", values.Birthplace.Country);
 
 
-        var url = '/api/currentgroup/mangopay/kyc/ubodeclarations/74860757/ubos/';
+        var url = '/api/currentgroup/mangopay/kyc/ubodeclarations/${props.declarationId}/ubos/';
         if (props.ubo != null) url += Std.string(props.ubo.Id);
 
         js.Browser.window.fetch(

@@ -18,10 +18,14 @@ import dateFns.DateFns;
 import dateFns.DateFns;
 import dateFns.DateFnsLocale;
 import react.ubo.UBOList;
+import mui.core.button.ButtonVariant;
+import mui.TextColor;
+import mui.core.button.ButtonSize;
 
 typedef UBODeclarationListItemProps = {
     declaration: UBODeclarationVO,
     active: Bool,
+    displayAction: Bool,
     onSelect: (?declaration: UBODeclarationVO) -> Void,
     onRefresh: () -> Void,
 };
@@ -33,9 +37,15 @@ typedef UBODeclarationListItemPropsWithClasses = {
     classes: UBODeclarationListItemPropsClasses,
 };
 
+typedef UBODeclarationListItemState = {
+    confirmDialogIsOpened: Bool,
+    isLoading: Bool,
+    ?error: String,
+};
+
 @:publicUBODeclarationListItemProps(UBODeclarationListItemProps)
 @:wrap(Styles.withStyles(styles))
-class UBODeclarationListItem extends ReactComponentOfProps<UBODeclarationListItemPropsWithClasses> {
+class UBODeclarationListItem extends ReactComponentOfPropsAndState<UBODeclarationListItemPropsWithClasses, UBODeclarationListItemState> {
 
     public static function styles(theme:Theme):ClassesDef<UBODeclarationListItemPropsClasses> {
         return {
@@ -50,9 +60,18 @@ class UBODeclarationListItem extends ReactComponentOfProps<UBODeclarationListIte
 
     public function new(props: UBODeclarationListItemPropsWithClasses) {
         super(props);
+
+        state = {
+            confirmDialogIsOpened: false,
+            isLoading: false,
+        };
     }
 
     override public function render() {
+        if (state.isLoading) {
+            return jsx('<Box mx={2} my={4}><LinearProgress /></Box>');
+        }
+
         var declaration = props.declaration;
         var dateStr = DateFns.format(
             Date.fromTime(declaration.CreationDate * 1000),
@@ -69,6 +88,7 @@ class UBODeclarationListItem extends ReactComponentOfProps<UBODeclarationListIte
                         severity="info">
                         <AlertTitle>Complétez la déclaration.</AlertTitle>
                         {renderUboList(true, true, declaration.Ubos.length < 4)}
+                        {renderSubmitButton(props.displayAction && declaration.Ubos.length > 0)}
                     </Alert>
                 </ListItem>
                 ;
@@ -86,10 +106,12 @@ class UBODeclarationListItem extends ReactComponentOfProps<UBODeclarationListIte
                     <Alert
                         classes={{ message: props.classes.alertMessage }}    
                         className=${props.classes.alert}
-                        severity="info">
+                        severity="warning">
                         <AlertTitle>Déclaration du {dateStr} incomplète.</AlertTitle>
                         {declaration.Message}<br />
                         Vous pouvez l&rsquo;éditer ci-dessous.
+                        {renderUboList(true, true, declaration.Ubos.length < 4)}
+                        {renderSubmitButton(props.displayAction && declaration.Ubos.length > 0)}
                     </Alert>
                 </ListItem>;
             case VALIDATED:
@@ -98,7 +120,14 @@ class UBODeclarationListItem extends ReactComponentOfProps<UBODeclarationListIte
                         classes={{ message: props.classes.alertMessage }}
                         className=${props.classes.alert}
                         severity="success">
-                        <AlertTitle>Déclaration du {dateStr} acceptée.</AlertTitle>
+                        <AlertTitle>
+                            <Box display="flex" justifyContent="space-between">
+                                <Typography>Déclaration du {dateStr} acceptée.</Typography>
+                                {renderAlertAction()}
+                            </Box>
+                        </AlertTitle>
+                        {renderUboList(props.active, false, false)}
+                        {renderCreateButton(props.displayAction, "Modifier")}
                     </Alert>
                 </ListItem>;
             case REFUSED: 
@@ -122,6 +151,7 @@ class UBODeclarationListItem extends ReactComponentOfProps<UBODeclarationListIte
 
         return jsx('
             <>
+                {renderError()}
                 $listItem
             </>'
         );
@@ -162,10 +192,137 @@ class UBODeclarationListItem extends ReactComponentOfProps<UBODeclarationListIte
         if (show) {
             return 
                 <Box mt={2} mx={2}>
-                    <UBOList ubos={props.declaration.Ubos} canEdit={canEdit} canAdd={canAdd} onRefresh=${props.onRefresh} />
+                    <UBOList declarationId={props.declaration.Id} ubos={props.declaration.Ubos} canEdit={canEdit} canAdd={canAdd} onRefresh=${props.onRefresh} />
                 </Box>
             ;
         }
         return <></>;
+    }
+
+    private function renderSubmitButton(show: Bool) {
+        if (!show) return <></>;
+        return 
+            <Box m={2} display="flex" justifyContent="center">
+                <Button
+                    style={{ color: "#fff" }}
+                    variant=${ButtonVariant.Contained}
+                    color=${mui.Color.Secondary}
+                    onClick=$openSubmitDialog>
+                    Soumettre votre déclaration
+                </Button>
+                {renderConfirmDialog(
+                    "Ces informations vont être envoyées aux équipes de Mangopay.",
+                    submit
+                )}
+            </Box>
+        ;
+    }
+
+    private function renderCreateButton(show: Bool, label: String) {
+        if (!show) return <></>;
+        return 
+            <Box m={2} display="flex" justifyContent="center">
+                <Button
+                    // style={{ color: "#fff" }}
+                    variant=${ButtonVariant.Outlined}
+                    size=${ButtonSize.Small}
+                    color=${mui.Color.Primary}
+                    onClick=$openSubmitDialog>
+                    {label}
+                </Button>
+                {renderConfirmDialog(
+                    "Pour éditer une déclaration, vous allez devoir en recréer une nouvelle.",
+                    create
+                )}
+            </Box>
+        ;
+    }
+
+    private function renderConfirmDialog(message: String, confirmCallback: () -> Void) {
+        return 
+            <Dialog
+                open=${state.confirmDialogIsOpened}
+                onClose=$closeSubmitDialog
+            >
+                <DialogTitle>{message}</DialogTitle>
+                <DialogActions>
+                    <Button onClick=$closeSubmitDialog color=${mui.Color.Primary}>
+                        Annuler
+                    </Button>
+                    <Button onClick=$confirmCallback  variant=${ButtonVariant.Outlined} color=${mui.Color.Secondary}>
+                        Continuer
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        ;
+    }
+
+    private function renderError() {
+        if (state.error == null) return <></>;
+        return 
+            <Box p={2}>
+                <Alert severity="error">{state.error}</Alert>
+            </Box>
+        ;
+    }
+
+    private function openSubmitDialog() {
+        setState({ confirmDialogIsOpened: true, error: null });
+    }
+
+    private function closeSubmitDialog() {
+        setState({ confirmDialogIsOpened: false });
+    }
+
+    private function submit() {
+        closeSubmitDialog();
+        setState({ isLoading: true, error: null });
+
+        var url = '/api/currentgroup/mangopay/kyc/ubodeclarations/${props.declaration.Id}';
+        var data = new js.html.FormData();
+        data.append("Status", "VALIDATION_ASKED");
+
+        js.Browser.window.fetch(
+            url,
+            {
+                method: "PUT",
+                body: data
+            }
+        ).then(res -> {
+            setState({ isLoading: false });
+            if (!res.ok) {
+                setState({ error: "Un erreur est survenue" });
+                throw res.statusText;
+            }
+            return res.json();
+        }).then(res -> {
+            props.onRefresh();
+        }).catchError(err -> {
+            trace(err);
+        });
+    }
+
+    private function create() {
+        closeSubmitDialog();
+        setState({ isLoading: true, error: null });
+
+        var url = '/api/currentgroup/mangopay/kyc/ubodeclarations';
+        js.Browser.window.fetch(
+            url,
+            {
+                method: "POST",
+            }
+        ).then(res -> {
+            setState({ isLoading: false });
+            if (!res.ok) {
+                setState({ error: "Un erreur est survenue" });
+                throw res.statusText;
+            }
+            return res.json();
+        }).then(res -> {
+            props.onRefresh();
+        }).catchError(err -> {
+            trace(err);
+        });
     }
 }
