@@ -5,9 +5,7 @@ import react.ReactComponent;
 import mui.core.*;
 import react.ubo.vo.UBODeclarationVO;
 import react.ubo.vo.UBOVO;
-import react.ubo.UBOPeopleDialogForm;
 import react.ubo.UBODeclarationList;
-import react.ubo.UBOPeopleItemList;
 import react.mui.Box;
 
 typedef UBOConfigProps = {};
@@ -52,10 +50,6 @@ class UBOConfig extends ReactComponentOfPropsAndState<UBOConfigProps, UBOConfigS
     }
 
     override public function render() {
-        // var res = 
-        //     <UBOPeopleForm />
-        // ;
-
         var res = 
             <Card>
                 <CardHeader
@@ -65,7 +59,6 @@ class UBOConfig extends ReactComponentOfPropsAndState<UBOConfigProps, UBOConfigS
                 <CardContent>
                     {renderLoader()}
                     {renderDeclarationList()}
-                    {renderDialog()}
                 </CardContent>
             </Card>
         ;
@@ -91,32 +84,6 @@ class UBOConfig extends ReactComponentOfPropsAndState<UBOConfigProps, UBOConfigS
         if (state.isLoading) return <></>;
         if (state.declarations == null) return <div>No declaration</div>;
         return <UBODeclarationList declarations=${state.declarations} />
-        ;
-    }
-    // private function renderCardContent() {
-    //     if (state.peoples == null)  return <></>;
-
-    //     return 
-    //         <List dense>
-    //         {state.peoples.map(people -> 
-    //             <UBOPeopleItemList
-    //                 key={people.Id}
-    //                 people={people}
-    //                 onEdit=$editPeople
-    //             />
-    //         )}
-    //         </List>
-    //     ;
-    // }
-
-    private function renderDialog() {
-        var isOpened = state.editablePeople != null;
-        return 
-            <UBOPeopleDialogForm
-                open={isOpened}
-                people={state.editablePeople}
-                onClose=$onCloseDialog
-                />
         ;
     }
 

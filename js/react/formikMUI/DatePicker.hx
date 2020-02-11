@@ -10,6 +10,7 @@ typedef DatePickerProps = {
     ?required: Bool,
     ?format: String,
     ?InputProps: Dynamic,
+    ?disabled: Bool,
 };
 
 @:jsRequire('formik-material-ui-pickers', 'DatePicker')

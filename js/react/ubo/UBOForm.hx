@@ -21,21 +21,22 @@ import react.formikMUI.DatePicker;
 import react.formikMUI.Select;
 import react.ubo.vo.UBOVO;
 
-typedef UBOPeopleFormProps = {
-    ?people: UBOVO,
+typedef UBOFormProps = {
+    ?ubo: UBOVO,
+    canEdit: Bool,
     onSubmit: () -> Void,
     onSubmitSuccess: () -> Void,
     onSubmitFailure: () -> Void,
 };
 
-typedef UBOPeopleFormClasses = Classes<[datePickerInput]>;
+typedef UBOFormClasses = Classes<[datePickerInput]>;
 
-typedef UBOPeopleFormPropsWithClasses = {
-    >UBOPeopleFormProps,
-    classes:UBOPeopleFormClasses,
+typedef UBOFormPropsWithClasses = {
+    >UBOFormProps,
+    classes:UBOFormClasses,
 };
 
-typedef UBOPeopleFormState = {
+typedef UBOFormState = {
     isLoading: Bool,
     countrys: Array<{alpha2: String, nationality: String, country: String}>
 };
@@ -59,11 +60,11 @@ typedef FormProps = {
     }
 };
 
-@:publicProps(UBOPeopleFormProps)
+@:publicProps(UBOFormProps)
 @:wrap(Styles.withStyles(styles))
-class UBOPeopleForm extends ReactComponentOfPropsAndState<UBOPeopleFormPropsWithClasses, UBOPeopleFormState> {
+class UBOForm extends ReactComponentOfPropsAndState<UBOFormPropsWithClasses, UBOFormState> {
 
-    public function new(props: UBOPeopleFormPropsWithClasses) {
+    public function new(props: UBOFormPropsWithClasses) {
         super(props);
 
         state = {
@@ -72,7 +73,7 @@ class UBOPeopleForm extends ReactComponentOfPropsAndState<UBOPeopleFormPropsWith
         };
     }
 
-    public static function styles(theme:Theme):ClassesDef<UBOPeopleFormClasses> {
+    public static function styles(theme:Theme):ClassesDef<UBOFormClasses> {
         return {
             datePickerInput: {
                 textTransform: css.TextTransform.Capitalize
@@ -99,26 +100,26 @@ class UBOPeopleForm extends ReactComponentOfPropsAndState<UBOPeopleFormPropsWith
 
     override public function render() {
         if (state.isLoading || state.countrys.length == 0) {
-            return jsx('<CircularProgress />');
+            return jsx('<Box display="flex" py={4} justifyContent="center"><CircularProgress /></Box>');
         }
 
-        var people = props.people;
+        var ubo = props.ubo;
         var initialValues = {
-            FirstName: people == null ? "" : people.FirstName,
-            LastName: people == null ? "" : people.LastName,
+            FirstName: ubo == null ? "" : ubo.FirstName,
+            LastName: ubo == null ? "" : ubo.LastName,
             Address: {
-                AddressLine1: people == null ? "" : people.Address.AddressLine1,
-                AddressLine2: people == null ? "" : (people.Address.AddressLine2 != null ? people.Address.AddressLine2 : ""),
-                City: people == null ? "" : people.Address.City,
-                Region: people == null ? "" : (people.Address.Region != null ? people.Address.Region : ""),
-                PostalCode: people == null ? "" : people.Address.PostalCode,
-                Country: people == null ? "FR" : people.Address.Country,
+                AddressLine1: ubo == null ? "" : ubo.Address.AddressLine1,
+                AddressLine2: ubo == null ? "" : (ubo.Address.AddressLine2 != null ? ubo.Address.AddressLine2 : ""),
+                City: ubo == null ? "" : ubo.Address.City,
+                Region: ubo == null ? "" : (ubo.Address.Region != null ? ubo.Address.Region : ""),
+                PostalCode: ubo == null ? "" : ubo.Address.PostalCode,
+                Country: ubo == null ? "FR" : ubo.Address.Country,
             },
-            Nationality: people == null ? "FR" : people.Nationality,
-            Birthday: people == null ? Date.now() : Date.fromTime(people.Birthday * 1000),
+            Nationality: ubo == null ? "FR" : ubo.Nationality,
+            Birthday: ubo == null ? Date.now() : Date.fromTime(ubo.Birthday * 1000),
             Birthplace: {
-                City: people == null ? "" : people.Birthplace.City,
-                Country: people == null ? "FR" : people.Birthplace.Country,
+                City: ubo == null ? "" : ubo.Birthplace.City,
+                Country: ubo == null ? "FR" : ubo.Birthplace.Country,
             }
         };
 
@@ -154,6 +155,7 @@ class UBOPeopleForm extends ReactComponentOfPropsAndState<UBOPeopleFormPropsWith
                                                 input: ${props.classes.datePickerInput}
                                             }
                                         }}
+                                        disabled={!props.canEdit}
                                         required 
                                         cancelLabel="Annuler"
                                         format="d MMMM yyyy"
@@ -168,16 +170,7 @@ class UBOPeopleForm extends ReactComponentOfPropsAndState<UBOPeopleFormPropsWith
                                 renderCountryField("Birthplace.Country", "Pays de naissance", "country")
                             )}
                             
-                            <Box pt={4} display="flex" justifyContent="center">
-                                <Button
-                                    disabled={formikProps.isSubmitting}
-                                    variant={ButtonVariant.Contained}
-                                    color={Color.Primary}
-                                    type={mui.core.button.ButtonType.Submit}
-                                    >
-                                    Valider
-                                </Button>
-                            </Box>
+                            {renderButton(formikProps.isSubmitting)}
                         </Form>
                     )}
                 </Formik>
@@ -217,6 +210,7 @@ class UBOPeopleForm extends ReactComponentOfPropsAndState<UBOPeopleFormPropsWith
                 required=$required
                 name=$name
                 label=$label
+                disabled={!props.canEdit}
             />
         ;
     }
@@ -227,7 +221,7 @@ class UBOPeopleForm extends ReactComponentOfPropsAndState<UBOPeopleFormPropsWith
         return
             <FormControl fullWidth margin=${FormControlMargin.Dense}>
                 <InputLabel id=$id>{label}</InputLabel>
-                <Select labelId=$id name=$name fullWidth required>
+                <Select labelId=$id name=$name fullWidth required disabled={!props.canEdit}>
                     ${state.countrys.map(c -> 
                         <MenuItem key=${c.alpha2} value=${c.alpha2} dense>
                             ${untyped c[labelField]}
@@ -244,6 +238,22 @@ class UBOPeopleForm extends ReactComponentOfPropsAndState<UBOPeopleFormPropsWith
             return renderTextField("Address.Region", "Région");
         }
         return <></>;
+    }
+
+    private function renderButton(isSubmitting: Bool) {
+        if (!props.canEdit) return <></>;
+        return 
+            <Box pt={4} display="flex" justifyContent="center">
+                <Button
+                    disabled={isSubmitting}
+                    variant={ButtonVariant.Contained}
+                    color={Color.Primary}
+                    type={mui.core.button.ButtonType.Submit}
+                    >
+                    Valider
+                </Button>
+            </Box>
+        ;
     }
     
      /**

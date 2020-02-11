@@ -7,6 +7,8 @@ typedef AlertProps = {
     severity: String,
     children: ReactNode,
     ?className: String,
+    ?classes: Dynamic,
+    ?action: Dynamic,
 };
 
 @:jsRequire('@material-ui/lab', 'Alert')

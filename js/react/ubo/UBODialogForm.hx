@@ -6,22 +6,23 @@ import mui.core.*;
 import mui.core.typography.TypographyVariant;
 import mui.icon.Close;
 import react.mui.Box;
-import react.ubo.UBOPeopleForm;
+import react.ubo.UBOForm;
 import react.ubo.vo.UBOVO;
 
-typedef UBOPeopleDialogFormProps = {
+typedef UBODialogFormProps = {
     open: Bool,
-    ?people: UBOVO,
+    canEdit: Bool,
+    ?ubo: UBOVO,
     onClose: (refresh: Bool) -> Void,
 };
 
-typedef UBOPeopleDialogFormState = {
+typedef UBODialogFormState = {
     isSubmiting: Bool,
 }
 
-class UBOPeopleDialogForm extends ReactComponentOfPropsAndState<UBOPeopleDialogFormProps, UBOPeopleDialogFormState> {
+class UBODialogForm extends ReactComponentOfPropsAndState<UBODialogFormProps, UBODialogFormState> {
 
-    public function new(props: UBOPeopleDialogFormProps) {
+    public function new(props: UBODialogFormProps) {
         super(props);
 
         state = {
@@ -34,8 +35,9 @@ class UBOPeopleDialogForm extends ReactComponentOfPropsAndState<UBOPeopleDialogF
             <Dialog open={props.open} onClose=$close>
                 {renderDialogTitle()}
                 <DialogContent>
-                    <UBOPeopleForm
-                        people={props.people}
+                    <UBOForm
+                        ubo={props.ubo}
+                        canEdit={props.canEdit}
                         onSubmit={onSubmit}
                         onSubmitSuccess={onSubmitSuccess}
                         onSubmitFailure={onSubmitFailure}
@@ -49,18 +51,11 @@ class UBOPeopleDialogForm extends ReactComponentOfPropsAndState<UBOPeopleDialogF
     }
 
     private function renderDialogTitle() {
-        var title = "Création d'un UBO";
-
-        if (props.people != null) {
-            title = 'Edition de ${props.people.FirstName} ${props.people.LastName}';
-        }
-
         return 
             <DialogTitle>
                 <Box display="flex" justifyContent="space-between" alignItems="center">
                     <Box>
-                        <Typography variant={TypographyVariant.H5}>Bénéficiaire effectif</Typography>
-                        <Typography variant={TypographyVariant.H6}>{title}</Typography>
+                        <Typography variant={TypographyVariant.H5}>Bénéficiaire effectif (UBO)</Typography>
                     </Box>
                     <IconButton disabled={state.isSubmiting} onClick=$close>
                         <Close />
