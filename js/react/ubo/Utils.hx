@@ -4,7 +4,7 @@ import js.html.FormData;
 
 class Utils {
     static public function addUboFormValuesToFormData(values: Dynamic, ?formData: FormData) {
-        var data = formData == null ? new FormData : formData;
+        var data = formData == null ? new FormData() : formData;
 
         data.append("FirstName", values.FirstName);
         data.append("LastName", values.LastName);

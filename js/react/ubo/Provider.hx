@@ -13,6 +13,7 @@ typedef ProviderProps = {
 typedef ProviderState = {
     declarationIsLoading: Bool,
     declarations: Array<DeclarationVO>,
+    uboIsSubmitting: Bool,
 };
 
 private class CtxP {
@@ -44,6 +45,7 @@ class Provider extends ReactComponentOfPropsAndState<ProviderProps, ProviderStat
         state = {
             declarationIsLoading: false,
             declarations: [],
+            uboIsSubmitting: false,
         };
     }
 
@@ -53,7 +55,10 @@ class Provider extends ReactComponentOfPropsAndState<ProviderProps, ProviderStat
             <UBOContext.Provider value={{
                 declarationIsLoading: state.declarationIsLoading,
                 declarations: state.declarations,
-                loadDeclaration: loadDeclaration
+                uboIsSubmitting: state.uboIsSubmitting,
+
+                loadDeclaration: loadDeclaration,
+                postOrPutUbo: postOrPutUbo,
             }}>
                 {props.children}
             </UBOContext.Provider>
@@ -74,5 +79,9 @@ class Provider extends ReactComponentOfPropsAndState<ProviderProps, ProviderStat
             }).catchError(err -> {
                 trace(err);
             });
+    }
+
+    private function postOrPutUbo(data: js.html.FormData, declarationId: Int, ?uboId: Int) {
+        return Api.postOrPutUbo(data, declarationId, uboId);
     }
 }

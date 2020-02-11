@@ -23,6 +23,7 @@ import react.formikMUI.Select;
 import react.ubo.vo.UboVO;
 import react.ubo.Utils;
 import react.ubo.Api;
+import react.ubo.Provider;
 
 private typedef Props = {
     declarationId: Int,
@@ -38,6 +39,7 @@ private typedef ClassesProps = Classes<[datePickerInput]>;
 private typedef PrivateProps = {
     >Props,
     classes:ClassesProps,
+    postOrPutUbo: (data: js.html.FormData, declarationId: Int, ?uboId: Int) -> js.Promise<Dynamic>,
 };
 
 private typedef State = {
@@ -66,6 +68,7 @@ private typedef FormProps = {
 
 @:publicProps(Props)
 @:wrap(Styles.withStyles(styles))
+@:wrap(Provider.withUBOContext)
 class UBOForm extends ReactComponentOfPropsAndState<PrivateProps, State> {
 
     public function new(props: PrivateProps) {
@@ -274,29 +277,16 @@ class UBOForm extends ReactComponentOfPropsAndState<PrivateProps, State> {
         props.onSubmit();
 
         var data = Utils.addUboFormValuesToFormData(values);
-
-        var url = '/api/currentgroup/mangopay/kyc/ubodeclarations/${props.declarationId}/ubos/';
-        if (props.ubo != null) url += Std.string(props.ubo.Id);
-
-        js.Browser.window.fetch(
-            url,
-            {
-                method: props.ubo == null ? "POST" : "PUT",
-                body: data
-            }
+        props.postOrPutUbo(
+            data,
+            props.declarationId,
+            props.ubo != null ? props.ubo.Id : null
         ).then(res -> {
             formikBag.setSubmitting(false);
-
-            if (!res.ok) {
-                formikBag.setStatus("Un erreur est survenue");
-                throw res.statusText;
-            }
-
-            return res.json();
-        }).then(res -> {
             props.onSubmitSuccess();
         }).catchError(err -> {
-            trace(err);
+            formikBag.setSubmitting(false);
+            formikBag.setStatus("Un erreur est survenue");
             props.onSubmitFailure();
         });
     }
