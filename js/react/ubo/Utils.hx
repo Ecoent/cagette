@@ -1,6 +1,7 @@
 package react.ubo;
 
 import js.html.FormData;
+import react.ubo.vo.DeclarationVO;
 
 class Utils {
     static public function addUboFormValuesToFormData(values: Dynamic, ?formData: FormData) {
@@ -20,5 +21,64 @@ class Utils {
         data.append("Birthplace.Country", values.Birthplace.Country);
 
         return data;
+    }
+
+    static public function declaration(declaration: DeclarationVO) {
+        return {
+            getAlertServerity: () -> {
+                return switch (declaration.Status) {
+                    case CREATED: "info";
+                    case VALIDATION_ASKED: "info";
+                    case INCOMPLETE: "warning";
+                    case VALIDATED: "success";
+                    case REFUSED: "error";
+                };
+            },
+            getAlertTitle: (dateStr: String) -> {
+                return switch (declaration.Status) {
+                    case CREATED: 'Complétez la déclaration.';
+                    case VALIDATION_ASKED: 'Déclaration du $dateStr en attente de validation.';
+                    case INCOMPLETE: 'Déclaration du $dateStr incomplète.';
+                    case VALIDATED: 'Déclaration du $dateStr acceptée.';
+                    case REFUSED: 'Déclaration du $dateStr refusée.';
+                };
+            },
+            canBeSubmitted: () -> {
+                return switch (declaration.Status) {
+                    case CREATED: true;
+                    case VALIDATION_ASKED: false;
+                    case INCOMPLETE: true;
+                    case VALIDATED: false;
+                    case REFUSED: false;
+                };
+            },
+            canCreateNew: () -> {
+                return switch (declaration.Status) {
+                    case CREATED: false;
+                    case VALIDATION_ASKED: false;
+                    case INCOMPLETE: false;
+                    case VALIDATED: true;
+                    case REFUSED: true;
+                };
+            },
+            canBeExtended: () -> {
+                return switch (declaration.Status) {
+                    case CREATED: true;
+                    case VALIDATION_ASKED: true;
+                    case INCOMPLETE: true;
+                    case VALIDATED: true;
+                    case REFUSED: true;
+                };
+            },
+            ubosCanBeEdited: () -> {
+                return switch (declaration.Status) {
+                    case CREATED: true;
+                    case VALIDATION_ASKED: false;
+                    case INCOMPLETE: true;
+                    case VALIDATED: false;
+                    case REFUSED: false;
+                };
+            }
+        };
     }
 }

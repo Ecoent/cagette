@@ -5,6 +5,7 @@ import react.ReactNode;
 
 typedef AlertTitleProps = {
     children: ReactNode,
+    ?style: Dynamic,
 };
 
 @:jsRequire('@material-ui/lab', 'AlertTitle')

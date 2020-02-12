@@ -17,18 +17,17 @@ private typedef Props = {
     onClose: (refresh: Bool) -> Void,
 };
 
-private typedef State = {
-    isSubmiting: Bool,
-}
+private typedef PrivateProps = {
+    >Props,
+    uboIsSubmitting: Bool,
+};
 
-class UBOFormDialog extends ReactComponentOfPropsAndState<Props, State> {
+@:publicProps(Props)
+@:wrap(Provider.withUBOContext)
+class UBOFormDialog extends ReactComponentOfProps<PrivateProps> {
 
-    public function new(props: Props) {
+    public function new(props: PrivateProps) {
         super(props);
-
-        state = {
-            isSubmiting: false,
-        }
     }
 
     override public function render() {
@@ -40,9 +39,6 @@ class UBOFormDialog extends ReactComponentOfPropsAndState<Props, State> {
                         declarationId={props.declarationId}
                         ubo={props.ubo}
                         canEdit={props.canEdit}
-                        onSubmit={onSubmit}
-                        onSubmitSuccess={onSubmitSuccess}
-                        onSubmitFailure={onSubmitFailure}
                         />
                 </DialogContent>
                 {renderSubmitingProgress()}
@@ -59,7 +55,7 @@ class UBOFormDialog extends ReactComponentOfPropsAndState<Props, State> {
                     <Box>
                         <Typography variant={TypographyVariant.H5}>Bénéficiaire effectif (UBO)</Typography>
                     </Box>
-                    <IconButton disabled={state.isSubmiting} onClick=$close>
+                    <IconButton disabled={props.uboIsSubmitting} onClick=$close>
                         <Close />
                     </IconButton>
                 </Box>
@@ -68,26 +64,13 @@ class UBOFormDialog extends ReactComponentOfPropsAndState<Props, State> {
     }
 
     private function renderSubmitingProgress() {
-        if (state.isSubmiting) return <LinearProgress />;
+        if (props.uboIsSubmitting) return <LinearProgress />;
         return <></>;
     }
 
     private function close() {
-        if (!state.isSubmiting) {
+        if (!props.uboIsSubmitting) {
             props.onClose(false);
         }
-    }
-
-    private function onSubmit() {
-        setState({ isSubmiting: true });
-    }
-
-    private function onSubmitSuccess() {
-        setState({ isSubmiting: false });
-        props.onClose(true);
-    }
-
-    private function onSubmitFailure() {
-        setState({ isSubmiting: false });
     }
 }

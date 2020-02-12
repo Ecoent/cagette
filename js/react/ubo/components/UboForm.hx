@@ -1,18 +1,15 @@
-package react.ubo;
+package react.ubo.components;
 
 import react.ReactMacro.jsx;
-import react.ReactComponent.ReactComponentOfPropsAndState;
+import react.ReactComponent;
 import mui.Color;
 import mui.core.*;
-import mui.core.styles.Styles;
-import mui.core.styles.Classes;
 import mui.core.form.FormControlMargin;
 import mui.core.grid.GridSpacing;
 import mui.core.button.ButtonVariant;
 import react.mui.pickers.MuiPickersUtilsProvider;
 import dateFns.DateFnsLocale;
 import dateFns.FrDateFnsUtils;
-import react.mui.CagetteTheme;
 import react.mui.Box;
 import react.mui.Alert;
 import react.formik.Formik;
@@ -22,29 +19,20 @@ import react.formikMUI.DatePicker;
 import react.formikMUI.Select;
 import react.ubo.vo.UboVO;
 import react.ubo.Utils;
-import react.ubo.Api;
-import react.ubo.Provider;
+
+import react.ubo.vo.UboVO;
 
 private typedef Props = {
-    declarationId: Int,
+    ?declarationId: Int,
     ?ubo: UboVO,
     canEdit: Bool,
+    countrys: Array<{alpha2: String, nationality: String, country: String}>,
+    ?onSubmit: (?uboId: Int, data: js.html.FormData, formikBag: Dynamic) -> Void,
+    ?onSubmitSuccess: () -> Void,
+    ?onSubmitFailure: () -> Void,
 };
 
-private typedef ClassesProps = Classes<[datePickerInput]>;
-
-private typedef PrivateProps = {
-    >Props,
-    classes:ClassesProps,
-    postOrPutUbo: (data: js.html.FormData, declarationId: Int, ?uboId: Int) -> js.Promise<Dynamic>,
-};
-
-private typedef State = {
-    isLoading: Bool,
-    countrys: Array<{alpha2: String, nationality: String, country: String}>
-};
-
-private typedef FormProps = {
+typedef FormProps = {
     FirstName: String,
     LastName: String,
     Address: {
@@ -63,48 +51,15 @@ private typedef FormProps = {
     }
 };
 
-@:publicProps(Props)
-@:wrap(Styles.withStyles(styles))
-@:wrap(Provider.withUBOContext)
-class UBOForm extends ReactComponentOfPropsAndState<PrivateProps, State> {
+class UboForm extends ReactComponentOfProps<Props> {
 
-    public function new(props: PrivateProps) {
+    private var initialValues: FormProps;
+
+    public function new(props: Props) {
         super(props);
 
-        state = {
-            isLoading: false,
-            countrys: [],
-        };
-    }
-
-    public static function styles(theme:Theme):ClassesDef<ClassesProps> {
-        return {
-            datePickerInput: {
-                textTransform: css.TextTransform.Capitalize
-              }
-        }
-    }
-
-    override function componentDidMount() {
-        setState({ isLoading: true });
-
-        // TODO: Move to context
-        Api.fetchISO3166French()
-            .then(res -> {
-                setState({ isLoading: false, countrys: cast res });
-                return true;
-            }).catchError(err -> {
-                trace(err);
-            });
-    }
-
-    override public function render() {
-        if (state.isLoading || state.countrys.length == 0) {
-            return jsx('<Box display="flex" py={4} justifyContent="center"><CircularProgress /></Box>');
-        }
-
         var ubo = props.ubo;
-        var initialValues = {
+        this.initialValues = {
             FirstName: ubo == null ? "" : ubo.FirstName,
             LastName: ubo == null ? "" : ubo.LastName,
             Address: {
@@ -122,6 +77,10 @@ class UBOForm extends ReactComponentOfPropsAndState<PrivateProps, State> {
                 Country: ubo == null ? "FR" : ubo.Birthplace.Country,
             }
         };
+    }
+
+    override public function render() {
+        var ubo = props.ubo;
 
         var res = 
             <MuiPickersUtilsProvider utils={FrDateFnsUtils} locale=${DateFnsLocale.fr} >
@@ -153,9 +112,7 @@ class UBOForm extends ReactComponentOfPropsAndState<PrivateProps, State> {
                                 <FormControl fullWidth margin={FormControlMargin.Dense}>
                                     <DatePicker
                                         InputProps={{
-                                            classes: {
-                                                input: ${props.classes.datePickerInput}
-                                            }
+                                            style: { textTransform: css.TextTransform.Capitalize }
                                         }}
                                         disabled={!props.canEdit || formikProps.isSubmitting}
                                         required 
@@ -182,12 +139,10 @@ class UBOForm extends ReactComponentOfPropsAndState<PrivateProps, State> {
         return jsx('$res');
     }
 
-
-
     /**
      * 
      */
-    private function renderStatus(?status: Dynamic) {
+     private function renderStatus(?status: Dynamic) {
         if (status == null) return null;
         return 
             <Box p={2}>
@@ -233,7 +188,7 @@ class UBOForm extends ReactComponentOfPropsAndState<PrivateProps, State> {
             <FormControl fullWidth margin=${FormControlMargin.Dense}>
                 <InputLabel id=$id>{label}</InputLabel>
                 <Select labelId=$id name=$name fullWidth required disabled={!props.canEdit  || formikProps.isSubmitting}>
-                    ${state.countrys.map(c -> 
+                    ${props.countrys.map(c -> 
                         <MenuItem key=${c.alpha2} value=${c.alpha2} dense>
                             ${untyped c[labelField]}
                         </MenuItem>
@@ -267,20 +222,23 @@ class UBOForm extends ReactComponentOfPropsAndState<PrivateProps, State> {
         ;
     }
     
-     /**
+    /**
      * 
      */
      private function onSubmit(values: FormProps, formikBag: Dynamic) {
         var data = Utils.addUboFormValuesToFormData(values);
-        props.postOrPutUbo(
-            data,
-            props.declarationId,
-            props.ubo != null ? props.ubo.Id : null
-        ).then(res -> {
-            formikBag.setSubmitting(false);
-        }).catchError(err -> {
-            formikBag.setSubmitting(false);
-            formikBag.setStatus("Un erreur est survenue");
-        });
+        if (props.onSubmit != null) {
+            props.onSubmit(props.ubo != null ? props.ubo.Id : null, data, formikBag);
+        }
+        // props.postOrPutUbo(
+        //     data,
+        //     props.declarationId,
+        //     props.ubo != null ? props.ubo.Id : null
+        // ).then(res -> {
+        //     formikBag.setSubmitting(false);
+        // }).catchError(err -> {
+        //     formikBag.setSubmitting(false);
+        //     formikBag.setStatus("Un erreur est survenue");
+        // });
     }
 }

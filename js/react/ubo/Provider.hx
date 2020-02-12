@@ -6,6 +6,9 @@ import react.React;
 import react.ubo.Api;
 import react.ubo.vo.DeclarationVO;
 
+import react.common.FormDialog;
+import react.ubo.components.UboForm;
+
 typedef ProviderProps = {
     children: ReactNode,
 };
@@ -14,6 +17,8 @@ typedef ProviderState = {
     declarationIsLoading: Bool,
     declarations: Array<DeclarationVO>,
     uboIsSubmitting: Bool,
+
+    formDialogIsOpened: Bool,
 };
 
 private class CtxP {
@@ -46,6 +51,8 @@ class Provider extends ReactComponentOfPropsAndState<ProviderProps, ProviderStat
             declarationIsLoading: false,
             declarations: [],
             uboIsSubmitting: false,
+
+            formDialogIsOpened: false,
         };
     }
 
@@ -59,11 +66,20 @@ class Provider extends ReactComponentOfPropsAndState<ProviderProps, ProviderStat
 
                 loadDeclaration: loadDeclaration,
                 postOrPutUbo: postOrPutUbo,
+
+                openUboFormDialog: openUboFormDialog,
             }}>
                 {props.children}
             </UBOContext.Provider>
         ;
         return jsx('$res');
+    }
+
+    /**
+     * 
+     */
+    private function closeFormDialog() {
+        setState({ formDialogIsOpened: false });
     }
 
     private function loadDeclaration() {
@@ -83,5 +99,9 @@ class Provider extends ReactComponentOfPropsAndState<ProviderProps, ProviderStat
 
     private function postOrPutUbo(data: js.html.FormData, declarationId: Int, ?uboId: Int) {
         return Api.postOrPutUbo(data, declarationId, uboId);
+    }
+
+    private function openUboFormDialog() {
+        
     }
 }
