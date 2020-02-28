@@ -38,3 +38,4 @@ devLibs/
 
 backend/lang
 
+*.env
