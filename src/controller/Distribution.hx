@@ -379,7 +379,7 @@ class Distribution extends Controller
 		
 		/*checkHasDistributionSectionAccess();
 		
-		var form = sugoi.form.Form.fromSpod(d);
+		var form = CagetteForm.fromSpod(d);
 		form.removeElement(form.getElement("contractId"));
 		
 		if (form.isValid()) {
@@ -810,7 +810,7 @@ class Distribution extends Controller
 		
 		var dc = new db.DistributionCycle();
 		dc.place = contract.amap.getMainPlace();
-		var form = sugoi.form.Form.fromSpod(dc);
+		var form = CagetteForm.fromSpod(dc);
 		form.removeElementByName("contractId");
 		
 		form.getElement("startDate").value = DateTool.now();
